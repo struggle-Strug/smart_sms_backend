@@ -11,9 +11,9 @@ module.exports = (db) => {
                 product_name VARCHAR(255) DEFAULT NULL,
                 lot_number INT DEFAULT NULL,
                 action VARCHAR(255) DEFAULT NULL,
-                created DATE DEFAULT CURRENT_DATE,  -- Current date as default for created
-                updated DATE DEFAULT CURRENT_DATE   -- Current date as default for updated
-            );
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `;
 
       db.query(sql, (err) => {

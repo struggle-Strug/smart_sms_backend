@@ -8,9 +8,9 @@ module.exports = (db) => {
               status VARCHAR(255) DEFAULT NULL,
               request_date_time TIMESTAMP NULL DEFAULT NULL,
               remarks VARCHAR(255) DEFAULT NULL,
-              updated DATE DEFAULT CURRENT_DATE,
-              created DATE DEFAULT CURRENT_DATE
-          );
+              created DATETIME DEFAULT CURRENT_TIMESTAMP,
+              updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `;
       db.query(sql, (err) => {
         if (err) {

@@ -3,20 +3,19 @@ module.exports = (db) => {
     // Initialize the database table
     init: (req, res) => {
       const sql = `
-            CREATE TABLE IF NOT EXISTS inventories (
-                id INT AUTO_INCREMENT PRIMARY KEY, -- MySQL equivalent for AUTOINCREMENT
-                product_id INT DEFAULT NULL,       -- Foreign key to products (if applicable)
-                product_name VARCHAR(255) DEFAULT NULL,
-                lot_number VARCHAR(255) DEFAULT NULL,
-                inventory INT DEFAULT NULL,
-                estimated_inventory INT DEFAULT NULL,
-                warning_value INT DEFAULT NULL,
-                created DATE DEFAULT CURRENT_DATE,  -- Current date as default for created
-                updated DATE DEFAULT CURRENT_DATE,  -- Current date as default for updated
-                alert_time DATE DEFAULT NULL,       -- Nullable date for alert time
-                estimated_alert_time DATE DEFAULT NULL -- Nullable date for estimated alert time
-            );
-
+          CREATE TABLE IF NOT EXISTS inventories (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            product_id INT DEFAULT NULL,
+            product_name VARCHAR(255) DEFAULT NULL,
+            lot_number VARCHAR(255) DEFAULT NULL,
+            inventory INT DEFAULT NULL,
+            estimated_inventory INT DEFAULT NULL,
+            warning_value INT DEFAULT NULL,
+            created DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            alert_time DATE DEFAULT NULL,
+            estimated_alert_time DATE DEFAULT NULL
+          )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `;
 
       db.query(sql, (err) => {

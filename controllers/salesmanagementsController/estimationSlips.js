@@ -19,8 +19,8 @@ module.exports = (db) => {
                   deposit_due_date DATE,
                   deposit_method VARCHAR(255),
                   status VARCHAR(255) DEFAULT '未受注',
-                  created DATE DEFAULT CURRENT_DATE,
-                  updated DATE DEFAULT CURRENT_DATE
+                  created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                  updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
               ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
           `;
 
