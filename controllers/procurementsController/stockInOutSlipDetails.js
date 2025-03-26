@@ -12,9 +12,9 @@ module.exports = (db) => {
                 unit VARCHAR(255),
                 price INT,
                 lot_number INT,
-                created DATE DEFAULT CURRENT_DATE,
-                updated DATE DEFAULT CURRENT_DATE
-            );
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `;
 
       db.query(sql, (err) => {

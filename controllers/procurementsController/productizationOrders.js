@@ -3,15 +3,15 @@ module.exports = (db) => {
     // Initialize the database table
     init: (req, res) => {
       const sql = `
-          CREATE TABLE IF NOT EXISTS productization_orders (
-              id INT AUTO_INCREMENT PRIMARY KEY, -- MySQL equivalent for AUTOINCREMENT
-              code VARCHAR(255),
-              order_date VARCHAR(255),
-              contact_person VARCHAR(255),
-              remarks VARCHAR(255),
-              created DATE DEFAULT CURRENT_DATE,  -- Current date as default for created
-              updated DATE DEFAULT CURRENT_DATE   -- Current date as default for updated
-          );
+        CREATE TABLE IF NOT EXISTS productization_orders (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          code VARCHAR(255),
+          order_date VARCHAR(255),
+          contact_person VARCHAR(255),
+          remarks VARCHAR(255),
+          created DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `;
 
       db.query(sql, (err) => {

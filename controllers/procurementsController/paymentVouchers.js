@@ -14,9 +14,9 @@ module.exports = (db) => {
                 contact_person VARCHAR(255),
                 purchase_voucher_id VARCHAR(255),
                 remarks VARCHAR(255),
-                created DATE DEFAULT CURRENT_DATE,  -- Current date as default for created
-                updated DATE DEFAULT CURRENT_DATE   -- Current date as default for updated
-            );
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `;
 
       db.query(sql, (err) => {

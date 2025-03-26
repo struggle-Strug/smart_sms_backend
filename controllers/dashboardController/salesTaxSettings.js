@@ -2,7 +2,6 @@ module.exports = (db) => {
     return {
       // Initialize the database table
       init: (req, res) => {
-  
         const sql = `
             CREATE TABLE IF NOT EXISTS taxes (
                 id INT AUTO_INCREMENT PRIMARY KEY, -- 消費税コード（主キー・自動増分）
