@@ -43,7 +43,7 @@ module.exports = (db) => {
                LEFT JOIN products ON esd.product_id = products.id
                LEFT JOIN estimation_slips es ON esd.estimation_slip_id = es.id`;
 
-      db.all(sql, [], (err, rows) => {
+      db.query(sql, [], (err, rows) => {
         if (err) {
           console.error("Error loading estimation slip details:", err.message);
           return res.status(500).send("Error loading estimation slip details.");
@@ -58,7 +58,7 @@ module.exports = (db) => {
     getEstimationSlipDetailById: (req, res) => {
       const id = req.params.id;
       const sql = `SELECT * FROM estimation_slip_details WHERE id = ?`;
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           console.error(
             "Error retrieving estimation slip detail:",
@@ -94,7 +94,7 @@ module.exports = (db) => {
       } = detailData;
 
       if (id) {
-        db.get(
+        db.query(
           `SELECT id FROM estimation_slip_details WHERE id = ?`,
           [id],
           (err, row) => {
@@ -103,7 +103,7 @@ module.exports = (db) => {
             }
 
             if (row) {
-              db.run(
+              db.query(
                 `UPDATE estimation_slip_details SET 
                                   estimation_slip_id = ?, 
                                   product_id = ?, 
@@ -118,7 +118,7 @@ module.exports = (db) => {
                                   stock = ?, 
                                   gross_profit = ?, 
                                   gross_margin_rate = ?, 
-                                  updated = datetime('now') 
+                                  updated = CURRENT_TIMESTAMP 
                               WHERE id = ?`,
                 [
                   estimation_slip_id,
@@ -144,11 +144,11 @@ module.exports = (db) => {
                 }
               );
             } else {
-              db.run(
+              db.query(
                 `INSERT INTO estimation_slip_details 
                                   (estimation_slip_id, product_id, product_name, number, unit, unit_price, price, tax_rate, lot_number, storage_facility, stock, gross_profit, gross_margin_rate, created, updated) 
                                   VALUES 
-                                  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                                  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
                 [
                   estimation_slip_id,
                   product_id,
@@ -175,11 +175,11 @@ module.exports = (db) => {
           }
         );
       } else {
-        db.run(
+        db.query(
           `INSERT INTO estimation_slip_details 
                       (estimation_slip_id, product_id, product_name, number, unit, unit_price, price, tax_rate, lot_number, storage_facility, stock, gross_profit, gross_margin_rate, created, updated) 
                       VALUES 
-                      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                      (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             estimation_slip_id,
             product_id,
@@ -209,7 +209,7 @@ module.exports = (db) => {
     deleteEstimationSlipDetailById: (req, res) => {
       const id = req.params.id;
       const sql = `DELETE FROM estimation_slip_details WHERE estimation_slip_id = ?`;
-      db.run(sql, [id], function (err) {
+      db.query(sql, [id], function (err) {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -229,7 +229,7 @@ module.exports = (db) => {
       } else {
         sql = `SELECT * FROM estimation_slip_details`;
       }
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -265,7 +265,7 @@ module.exports = (db) => {
         sql += ` WHERE ` + whereClauses.join(" AND ");
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -277,7 +277,7 @@ module.exports = (db) => {
     deleteEstimationSlipDetailsByEsId: (req, res) => {
       const EstimationSlipId = req.params.estimation_slip_id;
       const sql = `DELETE FROM estimation_slip_details WHERE estimation_slip_id = ?`;
-      db.run(sql, [EstimationSlipId], (err) => {
+      db.query(sql, [EstimationSlipId], (err) => {
         if (err) {
           return res.status(500).send(err.message);
         }

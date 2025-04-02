@@ -44,7 +44,7 @@ module.exports = (db) => {
         LEFT JOIN vendors v ON po.vender_id = v.id
       `;
 
-      db.all(sql, [], (err, rows) => {
+      db.query(sql, [], (err, rows) => {
         if (err) {
           console.error("Error loading purchase order details:", err.message);
           return res.status(500).send("Error loading purchase order details.");
@@ -58,7 +58,7 @@ module.exports = (db) => {
       const { id } = req.params;
       const sql = `SELECT * FROM purchase_order_details WHERE id = ?`;
 
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           console.error("Error fetching purchase order detail:", err.message);
           return res.status(500).send("Error fetching purchase order detail.");

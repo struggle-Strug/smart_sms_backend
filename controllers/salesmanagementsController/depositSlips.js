@@ -49,14 +49,14 @@ module.exports = (db) => {
              LIMIT ? OFFSET ?`;
 
       page === undefined
-        ? db.all(sql, (err, rows) => {
+        ? db.query(sql, (err, rows) => {
             if (err) {
               console.error("Error loading deposit slips:", err.message);
               return res.status(500).send("Error loading deposit slips.");
             }
             res.json(rows);
           })
-        : db.all(sql, [pageSize, offset], (err, rows) => {
+        : db.query(sql, [pageSize, offset], (err, rows) => {
             if (err) {
               console.error(
                 "Error loading deposit slips with pagination:",
@@ -74,7 +74,7 @@ module.exports = (db) => {
     getDepositSlipById: (req, res) => {
       const { id } = req.params;
       const sql = "SELECT * FROM deposit_slips WHERE id = ?";
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           console.error("Error retrieving deposit slip:", err.message);
           return res.status(500).send("Error retrieving deposit slip.");
@@ -98,7 +98,7 @@ module.exports = (db) => {
       } = depositSlipData;
 
       if (id) {
-        db.run(
+        db.query(
           `UPDATE deposit_slips SET 
                     code = ?,
                     deposit_date = ?,
@@ -106,7 +106,7 @@ module.exports = (db) => {
                     vender_name = ?,
                     vender_id = ?,
                     remarks = ?, 
-                    updated = datetime('now') 
+                    updated = CURRENT_TIMESTAMP 
                 WHERE id = ?`,
           [code, deposit_date, status, vender_name, vender_id, remarks, id],
           function (err) {
@@ -118,11 +118,11 @@ module.exports = (db) => {
           }
         );
       } else {
-        db.run(
+        db.query(
           `INSERT INTO deposit_slips 
                 (code, remarks, deposit_date, status, vender_name, vender_id, created, updated) 
                 VALUES 
-                (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [code, remarks, deposit_date, status, vender_name, vender_id],
           function (err) {
             if (err) {
@@ -139,7 +139,7 @@ module.exports = (db) => {
     deleteDepositSlipById: (req, res) => {
       const { id } = req.params;
       const sql = "DELETE FROM deposit_slips WHERE id = ?";
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) {
           console.error("Error deleting deposit slip:", err.message);
           return res.status(500).send("Error deleting deposit slip.");
@@ -166,7 +166,7 @@ module.exports = (db) => {
         sql = `SELECT * FROM deposit_slips`;
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error searching deposit slips:", err.message);
           return res.status(500).send("Error searching deposit slips.");

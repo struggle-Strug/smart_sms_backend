@@ -46,7 +46,7 @@ module.exports = (db) => {
 
       const params = page === undefined ? [] : [pageSize, offset];
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -58,7 +58,7 @@ module.exports = (db) => {
     getSalesSlipById: (req, res) => {
       const id = req.params.id;
       const sql = `SELECT * FROM sales_slips LEFT JOIN vendors v ON v.id = sales_slips.vender_id WHERE sales_slips.id = ?`;
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -87,7 +87,7 @@ module.exports = (db) => {
       } = salesSlipData;
 
       if (id) {
-        db.run(
+        db.query(
           `UPDATE sales_slips SET 
                   code = ?,
                   sales_date = ?, 
@@ -102,7 +102,7 @@ module.exports = (db) => {
                   closing_date = ?, 
                   deposit_due_date = ?, 
                   deposit_method = ?, 
-                  updated = datetime('now') 
+                  updated = CURRENT_TIMESTAMP 
               WHERE id = ?`,
           [
             code,
@@ -128,11 +128,11 @@ module.exports = (db) => {
           }
         );
       } else {
-        db.run(
+        db.query(
           `INSERT INTO sales_slips 
                   (code, sales_date, delivery_due_date, vender_id, vender_name, honorific, vender_contact_person, order_slip_id, order_id, remarks, closing_date, deposit_due_date, deposit_method, created, updated) 
                   VALUES 
-                  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             code,
             sales_date,
@@ -162,7 +162,7 @@ module.exports = (db) => {
     deleteSalesSlipById: (req, res) => {
       const id = req.params.id;
       const sql = `DELETE FROM sales_slips WHERE id = ?`;
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -187,7 +187,7 @@ module.exports = (db) => {
       } else {
         sql = `SELECT * FROM sales_slips`;
       }
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }

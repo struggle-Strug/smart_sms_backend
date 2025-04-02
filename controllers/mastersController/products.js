@@ -179,25 +179,55 @@ module.exports = (db) => {
 
     //searchId
     searchIdProducts: (req, res) => {
-      const { id } = req.query; // Assuming the query is passed as a query parameter, e.g., ?name=example
-
+      const { id } = req.query; // Get the query from request parameters
       let sql;
       let params = [];
 
-      if (id.trim() !== "") {
+      if (id && id.trim() !== "") {
         sql = `
-              SELECT * FROM products LEFT JOIN inventories ON products.id = inventories.product_id
-              WHERE products.id LIKE ?
-              `;
+            SELECT 
+                products.*, 
+                inventories.id AS inventory_id, 
+                inventories.created AS inventory_created, 
+                inventories.updated AS inventory_updated,
+                inventories.product_id, 
+                inventories.product_name, 
+                inventories.lot_number, 
+                inventories.inventory, 
+                inventories.estimated_inventory, 
+                inventories.warning_value, 
+                inventories.alert_time, 
+                inventories.estimated_alert_time
+            FROM products 
+            LEFT JOIN inventories ON products.id = inventories.product_id
+            WHERE CAST(products.id AS CHAR) LIKE ?
+        `;
         params = [`%${id}%`];
       } else {
-        sql = `SELECT * FROM products LEFT JOIN inventories ON products.id = inventories.product_id`;
+        // Return all data if query is empty
+        sql = `
+            SELECT 
+                products.*, 
+                inventories.id AS inventory_id, 
+                inventories.created AS inventory_created, 
+                inventories.updated AS inventory_updated,
+                inventories.product_id, 
+                inventories.product_name, 
+                inventories.lot_number, 
+                inventories.inventory, 
+                inventories.estimated_inventory, 
+                inventories.warning_value, 
+                inventories.alert_time, 
+                inventories.estimated_alert_time
+            FROM products 
+            LEFT JOIN inventories ON products.id = inventories.product_id
+        `;
       }
 
       db.query(sql, params, (err, rows) => {
         if (err) {
-          console.error("Error fetching products:", err.message);
-          return res.status(500).send("Error fetching products.");
+          console.error("Error searching products:", err.message);
+          return res.status(500).send("Error searching products.");
         }
         res.json(rows);
       });
