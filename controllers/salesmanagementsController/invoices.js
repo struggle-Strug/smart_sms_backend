@@ -32,7 +32,7 @@ module.exports = (db) => {
               LEFT JOIN customers c ON iv.customer_id = c.id
           `;
 
-      db.all(sql, [], (err, rows) => {
+      db.query(sql, [], (err, rows) => {
         if (err) {
           console.error("Error loading invoices:", err.message);
           return res.status(500).send("Error loading invoices.");
@@ -44,7 +44,7 @@ module.exports = (db) => {
     // Get Invoice by ID
     getInvoiceById: (req, res) => {
       const id = req.params.id;
-      db.get("SELECT * FROM invoices WHERE id = ?", [id], (err, row) => {
+      db.query("SELECT * FROM invoices WHERE id = ?", [id], (err, row) => {
         if (err) {
           console.error("Error retrieving invoice:", err.message);
           return res.status(500).send("Error retrieving invoice.");
@@ -65,7 +65,7 @@ module.exports = (db) => {
       } = req.body;
 
       if (id) {
-        db.run(
+        db.query(
           `
                   UPDATE invoices 
                   SET 
@@ -74,7 +74,7 @@ module.exports = (db) => {
                       total_price = ?, 
                       status = ?, 
                       invoice_number = ?, 
-                      updated = datetime('now') 
+                      updated = CURRENT_TIMESTAMP 
                   WHERE id = ?
               `,
           [billing_date, customer_id, total_price, status, invoice_number, id],
@@ -86,10 +86,10 @@ module.exports = (db) => {
           }
         );
       } else {
-        db.run(
+        db.query(
           `
                   INSERT INTO invoices (billing_date, customer_id, total_price, status, invoice_number, created, updated) 
-                  VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+                  VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
               `,
           [billing_date, customer_id, total_price, status, invoice_number],
           function (err) {
@@ -108,7 +108,7 @@ module.exports = (db) => {
     // Delete Invoice by ID
     deleteInvoiceById: (req, res) => {
       const id = req.params.id;
-      db.run("DELETE FROM invoices WHERE id = ?", [id], function (err) {
+      db.query("DELETE FROM invoices WHERE id = ?", [id], function (err) {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -138,7 +138,7 @@ module.exports = (db) => {
           `;
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error searching invoices:", err.message);
           return res.status(500).send("Error searching invoices.");
@@ -152,7 +152,7 @@ module.exports = (db) => {
       const today = new Date().toISOString().split("T")[0]; // Today's date (YYYY-MM-DD)
       const sql = `SELECT COUNT(*) AS count FROM invoices WHERE created = ?`;
 
-      db.get(sql, [today], (err, row) => {
+      db.query(sql, [today], (err, row) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -173,7 +173,7 @@ module.exports = (db) => {
           WHERE iv.total_price BETWEEN ? AND ?
       `;
 
-      db.all(sql, [minPrice, maxPrice], (err, rows) => {
+      db.query(sql, [minPrice, maxPrice], (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -184,12 +184,12 @@ module.exports = (db) => {
     // Update Invoice Status
     updateInvoiceStatus: (req, res) => {
       const id = req.params.id;
-      db.run(
+      db.query(
         `
               UPDATE invoices 
               SET 
                   status = 1, 
-                  updated = datetime('now')
+                  updated = CURRENT_TIMESTAMP
               WHERE id = ?
           `,
         [id],

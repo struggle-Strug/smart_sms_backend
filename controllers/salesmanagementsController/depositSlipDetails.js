@@ -41,7 +41,7 @@ module.exports = (db) => {
                    LEFT JOIN deposit_slips ds ON dsd.deposit_slip_id = ds.id
                    LEFT JOIN vendors v ON ds.vender_id = v.id`;
 
-      db.all(sql, [], (err, rows) => {
+      db.query(sql, [], (err, rows) => {
         if (err) {
           console.error("Error loading deposit slip details:", err.message);
           return res.status(500).send("Error loading deposit slip details.");
@@ -54,7 +54,7 @@ module.exports = (db) => {
     getDepositSlipDetailById: (req, res) => {
       const { id } = req.params;
       const sql = `SELECT * FROM deposit_slip_details WHERE id = ?`;
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           console.error("Error retrieving deposit slip detail:", err.message);
           return res.status(500).send("Error retrieving deposit slip detail.");
@@ -68,7 +68,7 @@ module.exports = (db) => {
       const { id } = req.params;
       console.log(id);
       const sql = `SELECT * FROM deposit_slip_details WHERE vender_name = ?`;
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           console.error(
             "Error retrieving deposit slip detail by vender name:",
@@ -101,7 +101,7 @@ module.exports = (db) => {
       } = detailData;
 
       if (id) {
-        db.run(
+        db.query(
           `UPDATE deposit_slip_details SET 
                     deposit_slip_id = ?, 
                     deposit_date = ?, 
@@ -113,7 +113,7 @@ module.exports = (db) => {
                     commission_fee = ?, 
                     remarks = ?, 
                     data_category = ?, 
-                    updated = datetime('now') 
+                    updated = CURRENT_TIMESTAMP 
                 WHERE id = ?`,
           [
             deposit_slip_id,
@@ -140,10 +140,10 @@ module.exports = (db) => {
         );
       } else {
         console.log("Executing insert");
-        db.run(
+        db.query(
           `INSERT INTO deposit_slip_details 
                 (deposit_slip_id, deposit_date, vender_id, vender_name, claim_id, deposit_method, deposits, commission_fee, remarks, data_category, created, updated) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             deposit_slip_id,
             deposit_date,
@@ -176,7 +176,7 @@ module.exports = (db) => {
     deleteDepositSlipDetailById: (req, res) => {
       const { id } = req.params;
       const sql = `DELETE FROM deposit_slip_details WHERE id = ?`;
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) {
           console.error("Error deleting deposit slip detail:", err.message);
           return res.status(500).send("Error deleting deposit slip detail.");
@@ -189,7 +189,7 @@ module.exports = (db) => {
     deleteDepositSlipDetailsBySlipId: (req, res) => {
       const { id } = req.params;
       const sql = `DELETE FROM deposit_slip_details WHERE deposit_slip_id = ?`;
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) {
           console.error(
             "Error deleting deposit slip details by slip ID:",
@@ -231,7 +231,7 @@ module.exports = (db) => {
         sql += ` WHERE ` + whereClauses.join(" AND ");
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error searching deposit slip details:", err.message);
           return res.status(500).send("Error searching deposit slip details.");
@@ -253,7 +253,7 @@ module.exports = (db) => {
         sql = `SELECT * FROM deposit_slip_details`;
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           console.error(
             "Error searching deposit slips by deposit slip ID:",
@@ -285,7 +285,7 @@ module.exports = (db) => {
         GROUP BY dsd.vender_id
       `;
 
-      db.all(sql, [...venderIds, formattedDate], (err, rows) => {
+      db.query(sql, [...venderIds, formattedDate], (err, rows) => {
         if (err) {
           console.error(
             "Error retrieving deposits total by vendor IDs:",
@@ -321,7 +321,7 @@ module.exports = (db) => {
         GROUP BY dsd.vender_id
       `;
 
-      db.all(sql, [...venderIds, formattedYesterday], (err, rows) => {
+      db.query(sql, [...venderIds, formattedYesterday], (err, rows) => {
         if (err) {
           console.error(
             "Error retrieving deposits total yesterday by vendor IDs:",

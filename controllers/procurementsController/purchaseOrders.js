@@ -60,7 +60,7 @@ module.exports = (db) => {
       const { id } = req.params;
       const sql = `SELECT * FROM purchase_orders WHERE id = ?`;
 
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           console.error("Error fetching purchase order:", err.message);
           return res.status(500).send("Error fetching purchase order.");
@@ -85,7 +85,7 @@ module.exports = (db) => {
         sql = `SELECT * FROM purchase_orders`;
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error searching purchase orders:", err.message);
           return res.status(500).send("Error searching purchase orders.");
@@ -117,7 +117,7 @@ module.exports = (db) => {
         params.push(`%${conditions.po_name}%`);
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           console.error(
             "Error searching purchase orders with conditions:",
@@ -135,8 +135,8 @@ module.exports = (db) => {
     savePurchaseOrder: (req, res) => {
       const orderData = req.body;
       const sql = orderData.id
-        ? `UPDATE purchase_orders SET code = ?, order_date = ?, vender_id = ?, vender_name = ?, honorific = ?, vender_contact_person = ?, remarks = ?, closing_date = ?, payment_due_date = ?, payment_method = ?, estimated_delivery_date = ?, updated = datetime('now') WHERE id = ?`
-        : `INSERT INTO purchase_orders (code, order_date, vender_id, vender_name, honorific, vender_contact_person, remarks, closing_date, payment_due_date, payment_method, estimated_delivery_date, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`;
+        ? `UPDATE purchase_orders SET code = ?, order_date = ?, vender_id = ?, vender_name = ?, honorific = ?, vender_contact_person = ?, remarks = ?, closing_date = ?, payment_due_date = ?, payment_method = ?, estimated_delivery_date = ?, updated = CURRENT_TIMESTAMP WHERE id = ?`
+        : `INSERT INTO purchase_orders (code, order_date, vender_id, vender_name, honorific, vender_contact_person, remarks, closing_date, payment_due_date, payment_method, estimated_delivery_date, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
 
       const params = orderData.id
         ? [
@@ -167,7 +167,7 @@ module.exports = (db) => {
             orderData.estimated_delivery_date,
           ];
 
-      db.run(sql, params, function (err) {
+      db.query(sql, params, function (err) {
         if (err) {
           console.error("Error saving purchase order:", err.message);
           return res.status(500).send("Error saving purchase order.");
@@ -181,7 +181,7 @@ module.exports = (db) => {
       const { id } = req.params;
       const sql = `DELETE FROM purchase_orders WHERE id = ?`;
 
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) {
           console.error("Error deleting purchase order:", err.message);
           return res.status(500).send("Error deleting purchase order.");
@@ -193,8 +193,8 @@ module.exports = (db) => {
     // Update Purchase Order Status
     updatePurchaseOrderStatus: (req, res) => {
       const query = req.body;
-      const sql = `UPDATE purchase_orders SET status = ?, updated = datetime('now') WHERE code = ?`;
-      db.run(sql, [query.status, query.code], function (err) {
+      const sql = `UPDATE purchase_orders SET status = ?, updated = CURRENT_TIMESTAMP WHERE code = ?`;
+      db.query(sql, [query.status, query.code], function (err) {
         if (err) {
           console.error("Error updating purchase order status:", err.message);
           return res.status(500).send("Error updating purchase order status.");

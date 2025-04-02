@@ -43,7 +43,7 @@ module.exports = (db) => {
       const sql = `SELECT * FROM deposit_transactions 
                      LEFT JOIN invoices iv ON iv.id = deposit_transactions.invoice_id`;
 
-      db.all(sql, [], (err, rows) => {
+      db.query(sql, [], (err, rows) => {
         if (err) {
           console.error("Error loading transactions:", err.message);
           return res.status(500).send("Error loading transactions.");
@@ -57,7 +57,7 @@ module.exports = (db) => {
       const { id } = req.params;
       const sql = "SELECT * FROM deposit_transactions WHERE id = ?";
 
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           console.error("Error retrieving transaction by ID:", err.message);
           return res.status(500).send("Error retrieving transaction by ID.");
@@ -86,11 +86,11 @@ module.exports = (db) => {
       } = transactionData;
 
       if (id) {
-        db.run(
+        db.query(
           `UPDATE deposit_transactions 
              SET amount = ?, balance = ?, debitCreditTypeCode = ?, memo = ?, 
                  remarks = ?, settlementDate = ?, transactionId = ?, transactionType = ?, 
-                 valueDate = ?, status = ?, invoice_id = ?, deposit_id = ?, updated = datetime('now') 
+                 valueDate = ?, status = ?, invoice_id = ?, deposit_id = ?, updated = CURRENT_TIMESTAMP 
              WHERE id = ?`,
           [
             amount,
@@ -116,11 +116,11 @@ module.exports = (db) => {
           }
         );
       } else {
-        db.run(
+        db.query(
           `INSERT INTO deposit_transactions 
              (amount, balance, debitCreditTypeCode, memo, remarks, settlementDate, 
               transactionId, transactionType, valueDate, status, invoice_id, deposit_id, created, updated) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             amount,
             balance,
@@ -151,7 +151,7 @@ module.exports = (db) => {
       const { id } = req.params;
       const sql = "DELETE FROM deposit_transactions WHERE id = ?";
 
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) {
           console.error("Error deleting transaction:", err.message);
           return res.status(500).send("Error deleting transaction.");
@@ -203,9 +203,9 @@ module.exports = (db) => {
 
           if (exists.length === 0) {
             await new Promise((resolve, reject) => {
-              db.run(
+              db.query(
                 `INSERT INTO deposit_transactions (transactionId, amount, balance, memo, remarks, settlementDate, transactionType, valueDate, status, invoice_id, deposit_id, created, updated)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
                 [
                   transactionId,
                   amount,
@@ -225,7 +225,7 @@ module.exports = (db) => {
           }
         }
 
-        db.all("SELECT * FROM deposit_transactions", [], (err, rows) => {
+        db.query("SELECT * FROM deposit_transactions", [], (err, rows) => {
           if (err) {
             console.error("Error retrieving transactions:", err.message);
             return res.status(500).send("Error retrieving transactions.");
@@ -244,8 +244,8 @@ module.exports = (db) => {
     // Update Transaction Status
     updateTransactionStatus: (req, res) => {
       const { id } = req.params;
-      db.run(
-        "UPDATE deposit_transactions SET status = 1, updated = datetime('now') WHERE id = ?",
+      db.query(
+        "UPDATE deposit_transactions SET status = 1, updated = CURRENT_TIMESTAMP WHERE id = ?",
         [id],
         (err) => {
           if (err) {
@@ -260,8 +260,8 @@ module.exports = (db) => {
     updateInvoiceId: (req, res) => {
       const { id } = req.params;
       const { invoice_id } = req.body;
-      db.run(
-        "UPDATE deposit_transactions SET invoice_id = ?, updated = datetime('now') WHERE id = ?",
+      db.query(
+        "UPDATE deposit_transactions SET invoice_id = ?, updated = CURRENT_TIMESTAMP WHERE id = ?",
         [invoice_id, id],
         (err) => {
           if (err) {
@@ -276,8 +276,8 @@ module.exports = (db) => {
     updateDepositId: (req, res) => {
       const { id } = req.params;
       const { deposit_id } = req.body;
-      db.run(
-        "UPDATE deposit_transactions SET deposit_id = ?, updated = datetime('now') WHERE id = ?",
+      db.query(
+        "UPDATE deposit_transactions SET deposit_id = ?, updated = CURRENT_TIMESTAMP WHERE id = ?",
         [deposit_id, id],
         (err) => {
           if (err) {
@@ -304,7 +304,7 @@ module.exports = (db) => {
         sql = `SELECT * FROM deposit_transactions`;
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           return res.status(500).send("Error searching transactions.");
         }
@@ -314,7 +314,7 @@ module.exports = (db) => {
 
     // Check if API Key is set
     isApiKeySet: (req, res) => {
-      db.get("SELECT api_key FROM bank_apis LIMIT 1", [], async (err, row) => {
+      db.query("SELECT api_key FROM bank_apis LIMIT 1", [], async (err, row) => {
         if (err) {
           console.error("Database error:", err);
           return res.status(500).send("Database error.");
@@ -345,7 +345,7 @@ module.exports = (db) => {
 
 function getApiKey() {
   return new Promise((resolve, reject) => {
-    db.get("SELECT api_key FROM bank_apis LIMIT 1", [], (err, row) => {
+    db.query("SELECT api_key FROM bank_apis LIMIT 1", [], (err, row) => {
       if (err) {
         reject(err);
       } else {
@@ -357,7 +357,7 @@ function getApiKey() {
 
 // Get All Transactions by Criteria
 async function getAllTransactions(transactionId, settlementDate, remarks) {
-  db.all(
+  db.query(
     "SELECT * FROM deposit_transactions WHERE transactionId = ? AND settlementDate = ? AND remarks = ?",
     [transactionId, settlementDate, remarks],
     (err, rows) => {

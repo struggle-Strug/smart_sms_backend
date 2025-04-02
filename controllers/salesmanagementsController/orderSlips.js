@@ -45,14 +45,14 @@ module.exports = (db) => {
           : `SELECT * FROM order_slips LIMIT ? OFFSET ?`;
 
       if (page === undefined) {
-        db.all(sql, (err, rows) => {
+        db.query(sql, (err, rows) => {
           if (err) {
             return res.status(500).send(err.message);
           }
           res.json(rows);
         });
       } else {
-        db.all(sql, [pageSize, offset], (err, rows) => {
+        db.query(sql, [pageSize, offset], (err, rows) => {
           if (err) {
             return res.status(500).send(err.message);
           }
@@ -65,7 +65,7 @@ module.exports = (db) => {
     getOrderSlipById: (req, res) => {
       const id = req.params.id;
       const sql = `SELECT * FROM order_slips LEFT JOIN vendors v ON v.id = order_slips.vender_id WHERE order_slips.id = ?`;
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -94,7 +94,7 @@ module.exports = (db) => {
       } = req.body;
 
       if (id) {
-        db.run(
+        db.query(
           `UPDATE order_slips SET 
                   code = ?,
                   order_id = ?, 
@@ -110,7 +110,7 @@ module.exports = (db) => {
                   closing_date = ?, 
                   deposit_due_date = ?, 
                   deposit_method = ?, 
-                  updated = datetime('now') 
+                  updated = CURRENT_TIMESTAMP 
               WHERE id = ?`,
           [
             code,
@@ -140,11 +140,11 @@ module.exports = (db) => {
           }
         );
       } else {
-        db.run(
+        db.query(
           `INSERT INTO order_slips 
                   (code, order_id, order_date, delivery_date, vender_id, vender_name, honorific, vender_contact_person, estimation_slip_id, estimation_id, remarks, closing_date, deposit_due_date, deposit_method, created, updated) 
                   VALUES 
-                  (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                  (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             code,
             order_id,
@@ -178,7 +178,7 @@ module.exports = (db) => {
     deleteOrderSlipById: (req, res) => {
       const id = req.params.id;
       const sql = `DELETE FROM order_slips WHERE id = ?`;
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -201,7 +201,7 @@ module.exports = (db) => {
       } else {
         sql = `SELECT * FROM order_slips`;
       }
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -237,7 +237,7 @@ module.exports = (db) => {
         params.push(`%${conditions.os_name}%`);
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -247,8 +247,8 @@ module.exports = (db) => {
 
     // Update Order Slip Status
     updateOrderSlipStatus: (req, res) => {
-      const sql = `UPDATE order_slips SET status = ?, updated = datetime('now') WHERE code = ?`;
-      db.run(sql, [req.body.status, req.body.code], function (err) {
+      const sql = `UPDATE order_slips SET status = ?, updated = CURRENT_TIMESTAMP WHERE code = ?`;
+      db.query(sql, [req.body.status, req.body.code], function (err) {
         if (err) {
           return res.status(500).send(err.message);
         }

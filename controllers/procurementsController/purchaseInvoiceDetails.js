@@ -43,7 +43,7 @@ module.exports = (db) => {
           LEFT JOIN products p ON pid.product_id = p.id
           LEFT JOIN vendors v ON pi.vender_id = v.id
       `;
-      db.all(sql, [], (err, rows) => {
+      db.query(sql, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
       });
@@ -53,7 +53,7 @@ module.exports = (db) => {
     getPurchaseInvoiceDetailById: (req, res) => {
       const { id } = req.params;
       const sql = `SELECT * FROM purchase_invoice_details WHERE id = ?`;
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(row);
       });
@@ -76,7 +76,7 @@ module.exports = (db) => {
       } = req.body;
 
       if (id) {
-        db.run(
+        db.query(
           `UPDATE purchase_invoice_details SET 
             purchase_invoice_id = ?, 
             product_id = ?, 
@@ -88,7 +88,7 @@ module.exports = (db) => {
             storage_facility = ?, 
             stock = ?, 
             lot_number = ?, 
-            updated = datetime('now') 
+            updated = CURRENT_TIMESTAMP 
           WHERE id = ?`,
           [
             purchase_invoice_id,
@@ -111,10 +111,10 @@ module.exports = (db) => {
           }
         );
       } else {
-        db.run(
+        db.query(
           `INSERT INTO purchase_invoice_details 
             (purchase_invoice_id, product_id, product_name, number, unit, price, tax_rate, storage_facility, stock, lot_number, created, updated) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             purchase_invoice_id,
             product_id,
@@ -171,7 +171,7 @@ module.exports = (db) => {
         sql += ` WHERE ` + whereClauses.join(" AND ");
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
       });
@@ -181,7 +181,7 @@ module.exports = (db) => {
     deletePurchaseInvoiceDetailById: (req, res) => {
       const { id } = req.params;
       const sql = `DELETE FROM purchase_invoice_details WHERE id = ?`;
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Purchase invoice detail deleted successfully." });
       });
@@ -194,7 +194,7 @@ module.exports = (db) => {
           DELETE FROM purchase_invoice_details
           WHERE purchase_invoice_id = ?
       `;
-      db.run(sql, [purchaseInvoiceId], (err) => {
+      db.query(sql, [purchaseInvoiceId], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Purchase invoice details deleted successfully." });
       });
@@ -216,7 +216,7 @@ module.exports = (db) => {
         sql = `SELECT * FROM purchase_invoice_details`;
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
       });

@@ -38,15 +38,12 @@ module.exports = (db) => {
     // Load Estimation Slips
     loadEstimationSlips: (req, res) => {
       const pageSize = 10;
-      const page = req.query.page ? parseInt(req.query.page) : undefined;
-      const offset = page;
-      const sql =
-        page === undefined
-          ? `SELECT * FROM estimation_slips`
-          : `SELECT * FROM estimation_slips LIMIT ? OFFSET ?`;
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const offset = (page - 1) * pageSize;
+      const sql = `SELECT * FROM estimation_slips LIMIT ? OFFSET ?`;
+      const queryParams = [pageSize, offset];
 
-      const queryParams = page === undefined ? [] : [pageSize, offset];
-      db.all(sql, queryParams, (err, rows) => {
+      db.query(sql, queryParams, (err, rows) => {
         if (err) {
           console.error("Error loading estimation slips:", err.message);
           return res.status(500).send("Error loading estimation slips.");
@@ -65,7 +62,7 @@ module.exports = (db) => {
               LEFT JOIN vendors v ON v.id = estimation_slips.vender_id
               WHERE estimation_slips.id = ?;`;
 
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           console.error("Error retrieving estimation slip:", err.message);
           return res.status(500).send("Error retrieving estimation slip.");
@@ -77,6 +74,7 @@ module.exports = (db) => {
     // Save Estimation Slip (Insert/Update)
     saveEstimationSlip: (req, res) => {
       const estimationData = req.body;
+      console.log(estimationData);
       const {
         id,
         code,
@@ -94,8 +92,16 @@ module.exports = (db) => {
         deposit_method,
       } = estimationData;
 
+      const formattedClosingDate = typeof closing_date === 'number' 
+        ? new Date(Date.now() + (closing_date * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
+        : closing_date;
+      
+      const formattedDepositDueDate = typeof deposit_due_date === 'number'
+        ? new Date(Date.now() + (deposit_due_date * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
+        : deposit_due_date;
+
       if (id) {
-        db.run(
+        db.query(
           `UPDATE estimation_slips SET 
                       code = ?,
                       estimation_date = ?, 
@@ -110,7 +116,7 @@ module.exports = (db) => {
                       closing_date = ?, 
                       deposit_due_date = ?, 
                       deposit_method = ?, 
-                      updated = datetime('now') 
+                      updated = CURRENT_TIMESTAMP 
                   WHERE id = ?`,
           [
             code,
@@ -123,8 +129,8 @@ module.exports = (db) => {
             vender_contact_person,
             remarks,
             estimated_delivery_date,
-            closing_date,
-            deposit_due_date,
+            formattedClosingDate,
+            formattedDepositDueDate,
             deposit_method,
             id,
           ],
@@ -137,11 +143,11 @@ module.exports = (db) => {
           }
         );
       } else {
-        db.run(
+        db.query(
           `INSERT INTO estimation_slips 
                       (code, estimation_date, estimation_due_date, estimation_id, vender_id, vender_name, honorific, vender_contact_person, remarks, estimated_delivery_date, closing_date, deposit_due_date, deposit_method, created, updated) 
                       VALUES 
-                      (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                      (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             code,
             estimation_date,
@@ -153,16 +159,16 @@ module.exports = (db) => {
             vender_contact_person,
             remarks,
             estimated_delivery_date,
-            closing_date,
-            deposit_due_date,
+            formattedClosingDate,
+            formattedDepositDueDate,
             deposit_method,
           ],
-          function (err) {
+          function (err, result) {
             if (err) {
               console.error("Error inserting estimation slip:", err.message);
               return res.status(500).send("Error inserting estimation slip.");
             }
-            res.json({ lastID: this.lastID });
+            res.json({ lastID: result.insertId });
           }
         );
       }
@@ -172,7 +178,7 @@ module.exports = (db) => {
     deleteEstimationSlipById: (req, res) => {
       const id = req.params.id;
       const sql = `DELETE FROM estimation_slips WHERE id = ?`;
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) {
           console.error("Error deleting estimation slip:", err.message);
           return res.status(500).send("Error deleting estimation slip.");
@@ -199,7 +205,7 @@ module.exports = (db) => {
         sql = `SELECT * FROM estimation_slips`;
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error searching estimation slips:", err.message);
           return res.status(500).send("Error searching estimation slips.");
@@ -231,7 +237,7 @@ module.exports = (db) => {
         params.push(`%${conditions.es_name}%`);
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error searching estimation slips on PV:", err.message);
           return res
@@ -245,8 +251,8 @@ module.exports = (db) => {
     // Update Estimation Slip Status
     updateEstimationSlipStatus: (req, res) => {
       const query = req.body;
-      const sql = `UPDATE estimation_slips SET status = ?, updated = datetime('now') WHERE code = ?`;
-      db.run(sql, [query.status, query.code], function (err) {
+      const sql = `UPDATE estimation_slips SET status = ?, updated = CURRENT_TIMESTAMP WHERE code = ?`;
+      db.query(sql, [query.status, query.code], function (err) {
         if (err) {
           console.error("Error updating estimation slip status:", err.message);
           return res.status(500).send("Error updating estimation slip status.");
