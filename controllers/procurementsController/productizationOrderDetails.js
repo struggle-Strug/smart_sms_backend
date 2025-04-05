@@ -15,9 +15,9 @@ module.exports = (db) => {
               storage VARCHAR(255),
               stock INT,
               lot_number INT,
-              created DATE DEFAULT CURRENT_DATE,  -- Current date as default for created
-              updated DATE DEFAULT CURRENT_DATE   -- Current date as default for updated
-          );
+              created DATETIME DEFAULT CURRENT_TIMESTAMP,
+              updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `;
 
       db.query(sql, (err) => {

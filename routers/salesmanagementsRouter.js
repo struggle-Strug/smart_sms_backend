@@ -38,10 +38,7 @@ module.exports = (db) => {
     "/estimationSlip/status",
     estimationSlips.updateEstimationSlipStatus
   );
-  router.post(
-    "/estimationSlipDetail/vender/search",
-    estimationSlipDetails.searchEstimationSlipsByEstimationSlipId
-  );
+  
   router.post("/estimationSlipDetail/init", estimationSlipDetails.init);
   router.post(
     "/estimationSlipDetail/search",
@@ -197,7 +194,10 @@ module.exports = (db) => {
   router.get("/invoice/search", invoices.searchInvoices);
   router.get("/invoice/:id", invoices.getInvoiceById);
   router.get("/invoice/", invoices.loadInvoices);
-
+  router.get(
+    "/estimationSlipDetail/vender/search",
+    estimationSlipDetails.searchEstimationSlipsByEstimationSlipId
+  );
   router.get(
     "/estimationSlipDetail/:id",
     estimationSlipDetails.getEstimationSlipDetailById
@@ -221,7 +221,7 @@ module.exports = (db) => {
   router.get("/depositTransaction/apiKey", depositTransctions.isApiKeySet);
   router.get("/depositTransaction/:id", depositTransctions.getTransactionById);
   router.get("/depositTransaction/", depositTransctions.loadTransactions);
-
+  
   router.get(
     "/depositSlipDetail/dsId/:id",
     depositSlipDetails.searchDepositSlipsByDepositSlipId

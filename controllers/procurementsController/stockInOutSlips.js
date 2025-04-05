@@ -12,9 +12,9 @@ module.exports = (db) => {
                 warehouse_to VARCHAR(255),
                 contact_person VARCHAR(255),
                 remarks VARCHAR(255),
-                created DATE DEFAULT CURRENT_DATE,
-                updated DATE DEFAULT CURRENT_DATE
-            );
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `;
 
       db.query(sql, (err) => {

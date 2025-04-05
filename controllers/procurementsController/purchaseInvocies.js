@@ -3,24 +3,24 @@ module.exports = (db) => {
     // Initialize the database table
     init: (req, res) => {
       const sql = `
-          CREATE TABLE IF NOT EXISTS purchase_invoices (
-              id INT AUTO_INCREMENT PRIMARY KEY,
-              code VARCHAR(255),
-              order_date VARCHAR(255),
-              vender_id VARCHAR(255),
-              vender_name VARCHAR(255),
-              honorific VARCHAR(255),
-              vender_contact_person VARCHAR(255),
-              contact_person VARCHAR(255),
-              purchase_order_id VARCHAR(255),
-              remarks VARCHAR(255),
-              closing_date VARCHAR(255),
-              payment_due_date VARCHAR(255),
-              payment_method VARCHAR(255),
-              status VARCHAR(255) DEFAULT '未処理',
-              created DATE DEFAULT CURRENT_DATE,
-              updated DATE DEFAULT CURRENT_DATE
-          );
+        CREATE TABLE IF NOT EXISTS purchase_invoices (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          code VARCHAR(255),
+          order_date VARCHAR(255),
+          vender_id VARCHAR(255),
+          vender_name VARCHAR(255),
+          honorific VARCHAR(255),
+          vender_contact_person VARCHAR(255),
+          contact_person VARCHAR(255),
+          purchase_order_id VARCHAR(255),
+          remarks VARCHAR(255),
+          closing_date VARCHAR(255),
+          payment_due_date VARCHAR(255),
+          payment_method VARCHAR(255),
+          status VARCHAR(255) DEFAULT '未処理',
+          created DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `;
 
       db.query(sql, (err) => {

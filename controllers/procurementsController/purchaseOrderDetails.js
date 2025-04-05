@@ -15,9 +15,9 @@ module.exports = (db) => {
               storage_facility VARCHAR(255),
               stock INT,
               lot_number INT,
-              created DATE DEFAULT CURRENT_DATE,
-              updated DATE DEFAULT CURRENT_DATE
-          );
+              created DATETIME DEFAULT CURRENT_TIMESTAMP,
+              updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `;
 
       db.query(sql, (err) => {
@@ -44,7 +44,7 @@ module.exports = (db) => {
         LEFT JOIN vendors v ON po.vender_id = v.id
       `;
 
-      db.all(sql, [], (err, rows) => {
+      db.query(sql, [], (err, rows) => {
         if (err) {
           console.error("Error loading purchase order details:", err.message);
           return res.status(500).send("Error loading purchase order details.");
@@ -58,7 +58,7 @@ module.exports = (db) => {
       const { id } = req.params;
       const sql = `SELECT * FROM purchase_order_details WHERE id = ?`;
 
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           console.error("Error fetching purchase order detail:", err.message);
           return res.status(500).send("Error fetching purchase order detail.");

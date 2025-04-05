@@ -2,7 +2,6 @@ module.exports = (db) => {
   return {
     // Initialize the database table
     init: (req, res) => {
-
       const sql = `
           CREATE TABLE IF NOT EXISTS customers (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -23,9 +22,9 @@ module.exports = (db) => {
             classification1 VARCHAR(255) DEFAULT NULL,
             classification2 VARCHAR(255) DEFAULT NULL,
             monthly_sales_target INT DEFAULT NULL,
-            tax_calculation INT DEFAULT NULL,
-            closing_date DATE DEFAULT NULL,
-            deposit_date DATE DEFAULT NULL,
+            tax_calculation VARCHAR(255) DEFAULT NULL,
+            closing_date INT DEFAULT NULL,
+            deposit_date INT DEFAULT NULL,
             created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         );
@@ -42,7 +41,6 @@ module.exports = (db) => {
 
     //Load customers
     load: (req, res) => {
-        
       const sql = "SELECT * FROM customers";
 
       db.query(sql, (err, rows) => {
@@ -85,12 +83,12 @@ module.exports = (db) => {
         billing_code,
         billing_information,
         monthly_sales_target,
-        closing_date,//追加
-        deposit_date,//追加
-        deposit_method,//追加
+        closing_date, //追加
+        deposit_date, //追加
+        deposit_method, //追加
         classification1, // 区分１//追加
         classification2, // 区分２//追加
-        tax_calculation,//追加
+        tax_calculation, //追加
       } = req.body;
       let sql, params;
 
@@ -112,12 +110,12 @@ module.exports = (db) => {
           billing_code,
           billing_information,
           monthly_sales_target,
-          closing_date,//追加
-          deposit_date,//追加
-          deposit_method,//追加
+          closing_date, //追加
+          deposit_date, //追加
+          deposit_method, //追加
           classification1, // 区分１//追加
           classification2, // 区分２//追加
-          tax_calculation,//追加
+          tax_calculation, //追加
           id,
         ];
       } else {
@@ -138,12 +136,12 @@ module.exports = (db) => {
           billing_code,
           billing_information,
           monthly_sales_target,
-          closing_date,//追加
-          deposit_date,//追加
-          deposit_method,//追加
+          closing_date, //追加
+          deposit_date, //追加
+          deposit_method, //追加
           classification1, // 区分１//追加
           classification2, // 区分２//追加
-          tax_calculation,//追加
+          tax_calculation, //追加
         ];
       }
 
@@ -184,11 +182,11 @@ module.exports = (db) => {
 
     //searchId
     searchIdCustomers: (req, res) => {
-      const { id } = req.query // Assuming the query is passed as a query parameter, e.g., ?name=example
-      
+      const { id } = req.query; // Assuming the query is passed as a query parameter, e.g., ?name=example
+
       let sql;
       let params = [];
-      
+
       if (id.trim() !== "") {
         sql = `
             SELECT * FROM customers 
@@ -198,7 +196,7 @@ module.exports = (db) => {
       } else {
         sql = `SELECT * FROM customers`;
       }
-    
+
       db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error fetching customers:", err.message);
@@ -210,11 +208,11 @@ module.exports = (db) => {
 
     //searchName
     searchNameCustomers: (req, res) => {
-      const { name_primary } = req.query // Assuming the query is passed as a query parameter, e.g., ?name=example
-      
+      const { name_primary } = req.query; // Assuming the query is passed as a query parameter, e.g., ?name=example
+
       let sql;
       let params = [];
-      
+
       if (name_primary.trim() !== "") {
         sql = `
             SELECT * FROM customers 
@@ -224,7 +222,7 @@ module.exports = (db) => {
       } else {
         sql = `SELECT * FROM customers`;
       }
-    
+
       db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error fetching customers:", err.message);
@@ -233,14 +231,14 @@ module.exports = (db) => {
         res.json(rows);
       });
     },
-    
+
     //searchCode
     loadCustomerByCode: (req, res) => {
-      const { code } = req.query // Assuming the query is passed as a query parameter, e.g., ?name=example
-      
+      const { code } = req.query; // Assuming the query is passed as a query parameter, e.g., ?name=example
+
       let sql;
       let params = [];
-      
+
       if (code.trim() !== "") {
         sql = `
             SELECT * FROM customers 
@@ -250,7 +248,7 @@ module.exports = (db) => {
       } else {
         sql = `SELECT * FROM customers`;
       }
-    
+
       db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error fetching customers:", err.message);
@@ -265,8 +263,11 @@ module.exports = (db) => {
       const { name_primary, name_secondary, name_kana, id, code } = req.query; // Assuming the query is passed as a query parameter, e.g., ?name=example
       let sql;
       let params = [];
-    
-      if ((name_primary || name_secondary || name_kana || id || code).trim() !== "") {
+
+      if (
+        (name_primary || name_secondary || name_kana || id || code).trim() !==
+        ""
+      ) {
         sql = `
             SELECT * FROM customers 
             WHERE name_primary LIKE ? 
@@ -276,16 +277,16 @@ module.exports = (db) => {
             OR code LIKE ?
             `;
         params = [
-          name_primary || '%',  // Fallback to '%' if the query is not provided
-          name_secondary || '%',
-          name_kana || '%',
-          id || '%',
-          code || '%',
+          name_primary || "%", // Fallback to '%' if the query is not provided
+          name_secondary || "%",
+          name_kana || "%",
+          id || "%",
+          code || "%",
         ];
       } else {
         sql = `SELECT * FROM customers`;
       }
-    
+
       db.query(sql, params, (err, rows) => {
         if (err) {
           console.error("Error fetching customers:", err.message);

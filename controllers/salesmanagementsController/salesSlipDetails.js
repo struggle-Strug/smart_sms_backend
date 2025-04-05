@@ -44,7 +44,7 @@ module.exports = (db) => {
               LEFT JOIN customers c ON ss.vender_id = c.id`;
       console.log("SQL Query:", sql);
 
-      db.all(sql, [], (err, rows) => {
+      db.query(sql, [], (err, rows) => {
         if (err) {
           console.error("Error executing SQL:", err);
           return res.status(500).send(err.message);
@@ -58,7 +58,7 @@ module.exports = (db) => {
     getSalesSlipDetailById: (req, res) => {
       const id = req.params.id;
       const sql = `SELECT * FROM sales_slip_details WHERE id = ?`;
-      db.get(sql, [id], (err, row) => {
+      db.query(sql, [id], (err, row) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -86,7 +86,7 @@ module.exports = (db) => {
       } = salesSlipDetailData;
 
       if (id) {
-        db.get(
+        db.query(
           `SELECT id FROM sales_slip_details WHERE id = ?`,
           [id],
           (err, row) => {
@@ -95,7 +95,7 @@ module.exports = (db) => {
             }
 
             if (row) {
-              db.run(
+              db.query(
                 `UPDATE sales_slip_details SET 
                               sales_slip_id = ?, 
                               product_id = ?, 
@@ -109,7 +109,7 @@ module.exports = (db) => {
                               stock = ?, 
                               gross_profit = ?, 
                               gross_margin_rate = ?, 
-                              updated = datetime('now') 
+                              updated = CURRENT_TIMESTAMP 
                           WHERE id = ?`,
                 [
                   sales_slip_id,
@@ -134,11 +134,11 @@ module.exports = (db) => {
                 }
               );
             } else {
-              db.run(
+              db.query(
                 `INSERT INTO sales_slip_details 
                           (sales_slip_id, product_id, product_name, number, unit, unit_price, tax_rate, lot_number, storage_facility, stock, gross_profit, gross_margin_rate, created, updated) 
                           VALUES 
-                          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
                 [
                   sales_slip_id,
                   product_id,
@@ -164,11 +164,11 @@ module.exports = (db) => {
           }
         );
       } else {
-        db.run(
+        db.query(
           `INSERT INTO sales_slip_details 
               (sales_slip_id, product_id, product_name, number, unit, unit_price, tax_rate, lot_number, storage_facility, stock, gross_profit, gross_margin_rate, created, updated) 
               VALUES 
-              (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+              (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             sales_slip_id,
             product_id,
@@ -197,7 +197,7 @@ module.exports = (db) => {
     deleteSalesSlipDetailsBySlipId: (req, res) => {
       const salesSlipId = req.params.salesSlipId;
       const sql = `DELETE FROM sales_slip_details WHERE sales_slip_id = ?`;
-      db.run(sql, [salesSlipId], (err) => {
+      db.query(sql, [salesSlipId], (err) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -209,7 +209,7 @@ module.exports = (db) => {
     deleteSalesSlipDetailById: (req, res) => {
       const id = req.params.id;
       const sql = `DELETE FROM sales_slip_details WHERE id = ?`;
-      db.run(sql, [id], (err) => {
+      db.query(sql, [id], (err) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -223,7 +223,7 @@ module.exports = (db) => {
       let sql = `SELECT * FROM sales_slip_details WHERE sales_slip_id LIKE ?`;
       let params = [`%${sales_slip_id}%`];
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -269,7 +269,7 @@ module.exports = (db) => {
         sql += ` WHERE ` + whereClauses.join(" AND ");
       }
 
-      db.all(sql, params, (err, rows) => {
+      db.query(sql, params, (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -324,7 +324,7 @@ module.exports = (db) => {
           GROUP BY ss.vender_id
       `;
 
-      db.all(sql, [...venderIds, formattedDate], (err, rows) => {
+      db.query(sql, [...venderIds, formattedDate], (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -356,7 +356,7 @@ module.exports = (db) => {
           GROUP BY ss.vender_id
       `;
 
-      db.all(sql, [...venderIds, formattedYesterday], (err, rows) => {
+      db.query(sql, [...venderIds, formattedYesterday], (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -378,7 +378,7 @@ module.exports = (db) => {
           AND strftime('%Y-%m', ss.sales_date) = strftime('%Y-%m', ?)
           GROUP BY ss.vender_id
       `;
-      db.all(sql, [...venderIds, formattedDate], (err, rows) => {
+      db.query(sql, [...venderIds, formattedDate], (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -425,7 +425,7 @@ function searchSalesSlipDetails(conditions, callback) {
     sql += ` WHERE ` + whereClauses.join(" AND ");
   }
 
-  db.all(sql, params, (err, rows) => {
+  db.query(sql, params, (err, rows) => {
     if (err) {
       return res.status(500).send(err.message);
     }
