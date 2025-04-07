@@ -36,17 +36,12 @@ module.exports = (db) => {
     // Load Sales Slips
     loadSalesSlips: (req, res) => {
       const pageSize = 10;
-      const page = req.query.page;
-      const offset = page;
+      const page = (req.query.page === '0' || req.query.page === "undefined") ? 1 : parseInt(req.query.page);
+      const offset = (page - 1) * pageSize;
+      const sql =`SELECT * FROM sales_slips LIMIT ? OFFSET ?`;
+      const queryParams = [pageSize, offset];
 
-      const sql =
-        page === undefined
-          ? `SELECT * FROM sales_slips`
-          : `SELECT * FROM sales_slips LIMIT ? OFFSET ?`;
-
-      const params = page === undefined ? [] : [pageSize, offset];
-
-      db.query(sql, params, (err, rows) => {
+      db.query(sql, queryParams, (err, rows) => {
         if (err) {
           return res.status(500).send(err.message);
         }
@@ -57,12 +52,17 @@ module.exports = (db) => {
     // Get Sales Slip by ID
     getSalesSlipById: (req, res) => {
       const id = req.params.id;
-      const sql = `SELECT * FROM sales_slips LEFT JOIN vendors v ON v.id = sales_slips.vender_id WHERE sales_slips.id = ?`;
+      const sql = `SELECT 
+                        sales_slips.*,  -- All columns from sales_slips
+                        v.code AS vendor_code  -- Vendor code with an alias to avoid duplication
+                    FROM sales_slips
+                    LEFT JOIN vendors v ON v.id = sales_slips.vender_id
+                    WHERE sales_slips.id = ?;`;
       db.query(sql, [id], (err, row) => {
         if (err) {
           return res.status(500).send(err.message);
         }
-        res.json(row);
+        res.json(row[0]);
       });
     },
 
@@ -85,6 +85,21 @@ module.exports = (db) => {
         deposit_due_date,
         deposit_method,
       } = salesSlipData;
+
+      // Format closing_date and deposit_due_date if they are numbers (representing days to add to current date)
+      const formattedClosingDate =
+        typeof closing_date === "number"
+          ? new Date(Date.now() + closing_date * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0]
+          : closing_date;
+
+      const formattedDepositDueDate =
+        typeof deposit_due_date === "number"
+          ? new Date(Date.now() + deposit_due_date * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0]
+          : deposit_due_date;
 
       if (id) {
         db.query(
@@ -115,8 +130,8 @@ module.exports = (db) => {
             order_slip_id,
             order_id,
             remarks,
-            closing_date,
-            deposit_due_date,
+            formattedClosingDate,
+            formattedDepositDueDate,
             deposit_method,
             id,
           ],
@@ -144,15 +159,15 @@ module.exports = (db) => {
             order_slip_id,
             order_id,
             remarks,
-            closing_date,
-            deposit_due_date,
+            formattedClosingDate,
+            formattedDepositDueDate,
             deposit_method,
           ],
-          function (err) {
+          function (err, result) {
             if (err) {
               return res.status(500).send(err.message);
             }
-            res.json({ lastID: this.lastID });
+            res.json({ lastID: result.insertId });
           }
         );
       }

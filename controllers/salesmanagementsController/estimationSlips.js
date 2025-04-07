@@ -75,7 +75,6 @@ module.exports = (db) => {
         if (row && row.length > 0) {
           row[0].code = String(row[0].code); // Enforce the value as a string
         }
-        console.log(row)
         res.json(row[0]);
       });
     },
@@ -99,7 +98,6 @@ module.exports = (db) => {
         deposit_due_date,
         deposit_method,
       } = estimationData;
-
 
       // Format closing_date and deposit_due_date if they are numbers (representing days to add to current date)
       const formattedClosingDate =
@@ -209,8 +207,6 @@ module.exports = (db) => {
     // Search Estimation Slips
     searchEstimationSlips: (req, res) => {
       const { vender_name, estimation_id, vender_contact_person } = req.query;
-      console.log('this is simple search', req.query)
-
       let sql;
       let params = [];
 
@@ -237,7 +233,7 @@ module.exports = (db) => {
 
     // Search Estimation Slips on PV
     searchEstimationSlipsOnPV: (req, res) => {
-      const { conditions } = req.body;
+      const conditions = req.body;
       let sql = `SELECT * FROM estimation_slips LEFT JOIN estimation_slip_details ON estimation_slips.id = estimation_slip_details.estimation_slip_id WHERE 1=1`;
       let params = [];
 
