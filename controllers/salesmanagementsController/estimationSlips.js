@@ -62,9 +62,6 @@ module.exports = (db) => {
           FROM estimation_slips
           LEFT JOIN vendors v ON v.id = estimation_slips.vender_id
           WHERE estimation_slips.id = ?`;
-
-
-
       db.query(sql, [id], (err, row) => {
         if (err) {
           console.error("Error retrieving estimation slip:", err.message);
@@ -82,6 +79,7 @@ module.exports = (db) => {
     // Save Estimation Slip (Insert/Update)
     saveEstimationSlip: (req, res) => {
       const estimationData = req.body;
+      console.log(estimationData);
       const {
         id,
         code,

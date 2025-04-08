@@ -76,7 +76,6 @@ module.exports = (db) => {
       } = req.body;
       console.log(req.body)
       if (id) {
-        console.log("this is update part")
         db.query(
           `UPDATE purchase_invoice_details SET 
             purchase_invoice_id = ?, 
@@ -112,7 +111,6 @@ module.exports = (db) => {
           }
         );
       } else {
-        console.log("this is save part")
         db.query(
           `INSERT INTO purchase_invoice_details 
             (purchase_invoice_id, product_id, product_name, number, unit, price, tax_rate, storage_facility, stock, lot_number, created, updated) 

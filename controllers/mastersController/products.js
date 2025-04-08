@@ -96,7 +96,6 @@ module.exports = (db) => {
         raw_costItem_cost,
         total_original_cost,
       } = req.body;
-      console.log(req.body)
       let sql, params;
 
       if (id) {

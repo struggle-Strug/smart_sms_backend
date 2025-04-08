@@ -163,6 +163,10 @@ module.exports = (db) => {
     //searchId
     searchIdVendors: (req, res) => {
       const { id } = req.query; // Assuming the query is passed as a query parameter, e.g., ?name=example
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2e290dfe4768dd423fb5a9baaa5511d838aad643
       let sql;
       let params = [];
 
