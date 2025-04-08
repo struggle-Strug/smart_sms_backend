@@ -64,9 +64,9 @@ module.exports = (db) => {
   router.post("/stockInOutSlip/init", stockInOutSlips.init);
   router.post("/stockInOutSlip/:id", stockInOutSlips.deleteStockInOutSlipById);
   router.post("/stockInOutSlip/", stockInOutSlips.saveStockInOutSlip);
-  router.post("/paymentVoucher/init", paymentVouchers.init);
-  router.post("/paymentVoucher/:id", paymentVouchers.deletePaymentVoucherById);
-  router.post("/paymentVoucher/", paymentVouchers.savePaymentVoucher);
+  router.post("/paymentVouchers/init", paymentVouchers.init);
+  router.post("/paymentVouchers/:id", paymentVouchers.deletePaymentVoucherById);
+  router.post("/paymentVouchers/", paymentVouchers.savePaymentVoucher);
   router.put(
     "/purchaseOrderDetail/",
     purchaseOrderDetails.editPurchaseOrdersDetail
@@ -284,9 +284,9 @@ module.exports = (db) => {
   router.get("/posPvsMapping/search", posPvsMappings.searchPosPvsMappings);
   router.get("/posPvsMapping/:id", posPvsMappings.getPosPvsMappingById);
   router.get("/posPvsMapping/", posPvsMappings.loadPosPvsMappings);
-  router.get("/paymentVoucher/search", paymentVouchers.searchPaymentVouchers);
-  router.get("/paymentVoucher/:id", paymentVouchers.getPaymentVoucherById);
-  router.get("/paymentVoucher/", paymentVouchers.loadPaymentVouchers);
+  router.get("/paymentVouchers/search", paymentVouchers.searchPaymentVouchers);
+  router.get("/paymentVouchers/:id", paymentVouchers.getPaymentVoucherById);
+  router.get("/paymentVouchers/", paymentVouchers.loadPaymentVouchers);
 
   router.get(
     "/paymentVoucherDetail/search",
