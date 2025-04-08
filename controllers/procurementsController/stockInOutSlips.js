@@ -30,18 +30,13 @@ module.exports = (db) => {
 
     // Load Stock In Out Slips
     loadStockInOutSlips: (req, res) => {
-      const page = req.query.page;
       const pageSize = 10;
-      const offset = page;
+      const page = (req.query.page === '0' || req.query.page === "undefined") ? 1 : parseInt(req.query.page);
+      const offset = (page - 1) * pageSize;
+      const sql =`SELECT * FROM stock_in_out_slips LIMIT ? OFFSET ?`;
+      const queryParams = [pageSize, offset];
 
-      const sql =
-        page !== undefined
-          ? `SELECT * FROM stock_in_out_slips LIMIT ? OFFSET ?`
-          : `SELECT * FROM stock_in_out_slips`;
-
-      const params = page !== undefined ? [pageSize, offset] : [];
-
-      db.query(sql, params, (err, rows) => {
+      db.query(sql, queryParams, (err, rows) => {
         if (err) {
           console.error("Error loading stock in out slips:", err.message);
           return res.status(500).send("Error loading stock in out slips.");
@@ -59,7 +54,7 @@ module.exports = (db) => {
           console.error("Error retrieving stock in out slip:", err.message);
           return res.status(500).send("Error retrieving stock in out slip.");
         }
-        res.json(row);
+        res.json(row[0]);
       });
     },
 
@@ -86,7 +81,7 @@ module.exports = (db) => {
                     warehouse_to = ?, 
                     contact_person = ?, 
                     remarks = ?, 
-                    updated = NOW() 
+                    updated = CURRENT_TIMESTAMP
                 WHERE id = ?`,
           [
             code,
@@ -111,7 +106,7 @@ module.exports = (db) => {
           `INSERT INTO stock_in_out_slips 
                 (code, stock_in_out_date, processType, warehouse_from, warehouse_to, contact_person, remarks, created, updated) 
                 VALUES 
-                (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+                (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             code,
             stock_in_out_date,
@@ -121,12 +116,12 @@ module.exports = (db) => {
             contact_person,
             remarks,
           ],
-          function (err) {
+          function (err, result) {
             if (err) {
               console.error("Error inserting stock in out slip:", err.message);
               return res.status(500).send("Error inserting stock in out slip.");
             }
-            res.send({ lastID: this.insertId });
+            res.send({ lastID: result.insertId });
           }
         );
       }
