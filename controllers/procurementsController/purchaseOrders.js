@@ -36,17 +36,12 @@ module.exports = (db) => {
     // Load Purchase Orders
     loadPurchaseOrders: (req, res) => {
       const pageSize = 10;
-      const page = req.query.page;
-      const offset = page;
+      const page = (req.query.page === '0' || req.query.page === "undefined") ? 1 : parseInt(req.query.page);
+      const offset = (page - 1) * pageSize;
+      const sql =`SELECT * FROM purchase_orders LIMIT ? OFFSET ?`;
+      const queryParams = [pageSize, offset];
 
-      const sql =
-        page === undefined
-          ? `SELECT * FROM purchase_orders`
-          : `SELECT * FROM purchase_orders LIMIT ? OFFSET ?`;
-
-      const params = page === undefined ? [] : [pageSize, offset];
-
-      db.query(sql, params, (err, rows) => {
+      db.query(sql, queryParams, (err, rows) => {
         if (err) {
           console.error("Error loading purchase orders:", err.message);
           return res.status(500).send("Error loading purchase orders.");
@@ -65,7 +60,7 @@ module.exports = (db) => {
           console.error("Error fetching purchase order:", err.message);
           return res.status(500).send("Error fetching purchase order.");
         }
-        res.json(row);
+        res.json(row[0]);
       });
     },
 
@@ -96,7 +91,7 @@ module.exports = (db) => {
 
     // Search Purchase Orders with Conditions
     searchPurchaseOrdersOnPV: (req, res) => {
-      const { conditions } = req.body;
+      const conditions = req.body;
       let sql = `SELECT * FROM purchase_orders WHERE 1=1`;
       let params = [];
 
@@ -167,12 +162,12 @@ module.exports = (db) => {
             orderData.estimated_delivery_date,
           ];
 
-      db.query(sql, params, function (err) {
+      db.query(sql, params, function (err, result) {
         if (err) {
           console.error("Error saving purchase order:", err.message);
           return res.status(500).send("Error saving purchase order.");
         }
-        res.json({ id: orderData.id || this.lastID });
+        res.json({ id: orderData.id || result.insertId });
       });
     },
 

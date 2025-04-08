@@ -74,7 +74,7 @@ module.exports = (db) => {
         stock,
         lot_number,
       } = req.body;
-
+      console.log(req.body)
       if (id) {
         db.query(
           `UPDATE purchase_invoice_details SET 
@@ -127,11 +127,11 @@ module.exports = (db) => {
             stock,
             lot_number,
           ],
-          function (err) {
+          function (err, result) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({
               message: "Purchase invoice detail saved successfully.",
-              lastID: this.lastID,
+              lastID: result.insertId,
             });
           }
         );

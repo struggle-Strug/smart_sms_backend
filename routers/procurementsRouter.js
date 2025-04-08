@@ -37,14 +37,14 @@ module.exports = (db) => {
     require("../controllers/procurementsController/squareLogs")(db);
 
   // Define routes and use the controller methods
-  router.post("/purchaseOrder/init", purchaseOrders.init);
+  router.post("/purchaseOrders/init", purchaseOrders.init);
   router.post(
-    "/purchaseOrder/pv/search",
+    "/purchaseOrders/pv/search",
     purchaseOrders.searchPurchaseOrdersOnPV
   );
-  router.post("/purchaseOrder/:id", purchaseOrders.deletePurchaseOrderById);
-  router.post("/purchaseOrder/", purchaseOrders.savePurchaseOrder);
-  router.put("/purchaseOrder/", purchaseOrders.updatePurchaseOrderStatus);
+  router.post("/purchaseOrders/:id", purchaseOrders.deletePurchaseOrderById);
+  router.post("/purchaseOrders/", purchaseOrders.savePurchaseOrder);
+  router.put("/purchaseOrders/", purchaseOrders.updatePurchaseOrderStatus);
   router.post("/productizationOrder/init", productizationOrders.init);
   router.post(
     "/productizationOrder/:id",
@@ -64,9 +64,9 @@ module.exports = (db) => {
   router.post("/stockInOutSlip/init", stockInOutSlips.init);
   router.post("/stockInOutSlip/:id", stockInOutSlips.deleteStockInOutSlipById);
   router.post("/stockInOutSlip/", stockInOutSlips.saveStockInOutSlip);
-  router.post("/paymentVoucher/init", paymentVouchers.init);
-  router.post("/paymentVoucher/:id", paymentVouchers.deletePaymentVoucherById);
-  router.post("/paymentVoucher/", paymentVouchers.savePaymentVoucher);
+  router.post("/paymentVouchers/init", paymentVouchers.init);
+  router.post("/paymentVouchers/:id", paymentVouchers.deletePaymentVoucherById);
+  router.post("/paymentVouchers/", paymentVouchers.savePaymentVoucher);
   router.put(
     "/purchaseOrderDetail/",
     purchaseOrderDetails.editPurchaseOrdersDetail
@@ -104,21 +104,18 @@ module.exports = (db) => {
     "/productizationOrderDetail/",
     productizationOrderDetails.saveProductizationOrderDetail
   );
-  router.post("/purchaseInvoiceDetail/init", purchaseInvoiceDetails.init);
+  router.post("/purchaseInvoiceDetails/init", purchaseInvoiceDetails.init);
   router.post(
-    "/purchaseInvoiceDetail/pi/:id",
+    "/purchaseInvoiceDetails/pi/:id",
+    purchaseInvoiceDetails.deletePurchaseInvoiceDetailById
+  );
+  
+  router.post(
+    "/purchaseInvoiceDetails/:id",
     purchaseInvoiceDetails.deletePurchaseInvoiceDetailById
   );
   router.post(
-    "/purchaseInvoiceDetail/pi/search",
-    purchaseInvoiceDetails.searchPurchaseInvoicesByPurchaseInvoiceId
-  );
-  router.post(
-    "/purchaseInvoiceDetail/:id",
-    purchaseInvoiceDetails.deletePurchaseInvoiceDetailById
-  );
-  router.post(
-    "/purchaseInvoiceDetail/",
+    "/purchaseInvoiceDetails/",
     purchaseInvoiceDetails.savePurchaseInvoiceDetail
   );
 
@@ -225,20 +222,23 @@ module.exports = (db) => {
     purchaseOrderDetails.loadPurchaseOrderDetails
   );
 
-  router.get("/purchaseOrder/search", purchaseOrders.searchPurchaseOrders);
-  router.get("/purchaseOrder/:id", purchaseOrders.getPurchaseOrderById);
-  router.get("/purchaseOrder/", purchaseOrders.loadPurchaseOrders);
-
+  router.get("/purchaseOrders/search", purchaseOrders.searchPurchaseOrders);
+  router.get("/purchaseOrders/:id", purchaseOrders.getPurchaseOrderById);
+  router.get("/purchaseOrders/", purchaseOrders.loadPurchaseOrders);
   router.get(
-    "/purchaseInvoiceDetail/search",
+    "/purchaseInvoiceDetails/pi/search",
+    purchaseInvoiceDetails.searchPurchaseInvoicesByPurchaseInvoiceId
+  );
+  router.get(
+    "/purchaseInvoiceDetails/search",
     purchaseInvoiceDetails.searchPurchaseInvoiceDetails
   );
   router.get(
-    "/purchaseInvoiceDetail/:id",
+    "/purchaseInvoiceDetails/:id",
     purchaseInvoiceDetails.getPurchaseInvoiceDetailById
   );
   router.get(
-    "/purchaseInvoiceDetail/",
+    "/purchaseInvoiceDetails/",
     purchaseInvoiceDetails.loadPurchaseInvoiceDetails
   );
   router.get(
@@ -284,9 +284,9 @@ module.exports = (db) => {
   router.get("/posPvsMapping/search", posPvsMappings.searchPosPvsMappings);
   router.get("/posPvsMapping/:id", posPvsMappings.getPosPvsMappingById);
   router.get("/posPvsMapping/", posPvsMappings.loadPosPvsMappings);
-  router.get("/paymentVoucher/search", paymentVouchers.searchPaymentVouchers);
-  router.get("/paymentVoucher/:id", paymentVouchers.getPaymentVoucherById);
-  router.get("/paymentVoucher/", paymentVouchers.loadPaymentVouchers);
+  router.get("/paymentVouchers/search", paymentVouchers.searchPaymentVouchers);
+  router.get("/paymentVouchers/:id", paymentVouchers.getPaymentVoucherById);
+  router.get("/paymentVouchers/", paymentVouchers.loadPaymentVouchers);
 
   router.get(
     "/paymentVoucherDetail/search",

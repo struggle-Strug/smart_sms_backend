@@ -84,7 +84,6 @@ module.exports = (db) => {
         gross_profit,
         gross_margin_rate,
       } = salesSlipDetailData;
-
       if (id) {
         db.query(
           `SELECT id FROM sales_slip_details WHERE id = ?`,

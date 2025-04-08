@@ -100,7 +100,7 @@ module.exports = (db) => {
 
       if (id) {
         // Update existing product
-        sql = `UPDATE products SET name = ?, code = ?, category = ?, subcategory = ?, jan_code = ?, standard_retail_price = ?, procurement_cost = ?, manufacturer_name = ?, specification = ?, unit = ?, country_of_origin = ?, storage_location = ?, storage_method = ?, threshold = ?, tax_rate = ?, updated = NOW() WHERE id = ?`;
+        sql = `UPDATE products SET name = ?, code = ?, category = ?, subcategory = ?, jan_code = ?, standard_retail_price = ?, procurement_cost = ?, manufacturer_name = ?, specification = ?, unit = ?, country_of_origin = ?, storage_location = ?, storage_method = ?, threshold = ?, tax_rate = ?, raw_materials = ?, raw_materials_weight = ?, raw_materials_cost = ?, raw_costItem = ?, raw_costItem_cost_weight = ?, raw_costItem_cost = ?, total_original_cost = ?, updated = CURRENT_TIMESTAMP WHERE id = ?`;
         params = [
           name,
           code,
@@ -128,7 +128,8 @@ module.exports = (db) => {
         ];
       } else {
         // Insert new product
-        sql = `INSERT INTO products (name, code, category, subcategory, jan_code, standard_retail_price, procurement_cost, manufacturer_name, specification, unit, country_of_origin, storage_location, storage_method, threshold, tax_rate, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
+        sql = `INSERT INTO products 
+        (name, code, category, subcategory, jan_code, standard_retail_price, procurement_cost, manufacturer_name, specification, unit, country_of_origin, storage_location, storage_method, threshold, tax_rate, raw_materials, raw_materials_weight, raw_materials_cost, raw_costItem, raw_costItem_cost_weight, raw_costItem_cost, total_original_cost, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
         params = [
           name,
           code,

@@ -38,7 +38,7 @@ module.exports = (db) => {
     // Load Estimation Slips
     loadEstimationSlips: (req, res) => {
       const pageSize = 10;
-      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const page = (req.query.page === '0' || req.query.page === "undefined") ? 1 : parseInt(req.query.page);
       const offset = (page - 1) * pageSize;
       const sql = `SELECT * FROM estimation_slips LIMIT ? OFFSET ?`;
       const queryParams = [pageSize, offset];
@@ -55,19 +55,24 @@ module.exports = (db) => {
     // Get Estimation Slip by ID
     getEstimationSlipById: (req, res) => {
       const id = req.params.id;
-      const sql = `SELECT 
-              estimation_slips.*, 
-              v.code AS vendor_code  
-              FROM estimation_slips
-              LEFT JOIN vendors v ON v.id = estimation_slips.vender_id
-              WHERE estimation_slips.id = ?;`;
-
+      const sql = `
+          SELECT 
+            estimation_slips.*, 
+            v.code AS vendor_code  -- vendorsのcodeは別名をつける,
+          FROM estimation_slips
+          LEFT JOIN vendors v ON v.id = estimation_slips.vender_id
+          WHERE estimation_slips.id = ?`;
       db.query(sql, [id], (err, row) => {
         if (err) {
           console.error("Error retrieving estimation slip:", err.message);
           return res.status(500).send("Error retrieving estimation slip.");
         }
-        res.json(row);
+
+        // Explicitly cast 'code' field to VARCHAR
+        if (row && row.length > 0) {
+          row[0].code = String(row[0].code); // Enforce the value as a string
+        }
+        res.json(row[0]);
       });
     },
 
@@ -92,32 +97,40 @@ module.exports = (db) => {
         deposit_method,
       } = estimationData;
 
-      const formattedClosingDate = typeof closing_date === 'number' 
-        ? new Date(Date.now() + (closing_date * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
-        : closing_date;
-      
-      const formattedDepositDueDate = typeof deposit_due_date === 'number'
-        ? new Date(Date.now() + (deposit_due_date * 24 * 60 * 60 * 1000)).toISOString().split('T')[0]
-        : deposit_due_date;
+      // Format closing_date and deposit_due_date if they are numbers (representing days to add to current date)
+      const formattedClosingDate =
+        typeof closing_date === "number"
+          ? new Date(Date.now() + closing_date * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0]
+          : closing_date;
+
+      const formattedDepositDueDate =
+        typeof deposit_due_date === "number"
+          ? new Date(Date.now() + deposit_due_date * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0]
+          : deposit_due_date;
 
       if (id) {
+        // Update query
         db.query(
           `UPDATE estimation_slips SET 
-                      code = ?,
-                      estimation_date = ?, 
-                      estimation_due_date = ?, 
-                      estimation_id = ?, 
-                      vender_id = ?, 
-                      vender_name = ?, 
-                      honorific = ?, 
-                      vender_contact_person = ?, 
-                      remarks = ?, 
-                      estimated_delivery_date = ?, 
-                      closing_date = ?, 
-                      deposit_due_date = ?, 
-                      deposit_method = ?, 
-                      updated = CURRENT_TIMESTAMP 
-                  WHERE id = ?`,
+                          code = ?, 
+                          estimation_date = ?, 
+                          estimation_due_date = ?, 
+                          estimation_id = ?, 
+                          vender_id = ?, 
+                          vender_name = ?, 
+                          honorific = ?, 
+                          vender_contact_person = ?, 
+                          remarks = ?, 
+                          estimated_delivery_date = ?, 
+                          closing_date = ?, 
+                          deposit_due_date = ?, 
+                          deposit_method = ?, 
+                          updated = CURRENT_TIMESTAMP 
+                      WHERE id = ?`,
           [
             code,
             estimation_date,
@@ -129,8 +142,8 @@ module.exports = (db) => {
             vender_contact_person,
             remarks,
             estimated_delivery_date,
-            formattedClosingDate,
-            formattedDepositDueDate,
+            formattedClosingDate, // Use the formatted closing date
+            formattedDepositDueDate, // Use the formatted deposit due date
             deposit_method,
             id,
           ],
@@ -143,11 +156,12 @@ module.exports = (db) => {
           }
         );
       } else {
+        // Insert query for new data
         db.query(
           `INSERT INTO estimation_slips 
-                      (code, estimation_date, estimation_due_date, estimation_id, vender_id, vender_name, honorific, vender_contact_person, remarks, estimated_delivery_date, closing_date, deposit_due_date, deposit_method, created, updated) 
-                      VALUES 
-                      (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+                          (code, estimation_date, estimation_due_date, estimation_id, vender_id, vender_name, honorific, vender_contact_person, remarks, estimated_delivery_date, closing_date, deposit_due_date, deposit_method, created, updated) 
+                          VALUES 
+                          (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [
             code,
             estimation_date,
@@ -159,8 +173,8 @@ module.exports = (db) => {
             vender_contact_person,
             remarks,
             estimated_delivery_date,
-            formattedClosingDate,
-            formattedDepositDueDate,
+            formattedClosingDate, // Use the formatted closing date
+            formattedDepositDueDate, // Use the formatted deposit due date
             deposit_method,
           ],
           function (err, result) {
@@ -173,6 +187,7 @@ module.exports = (db) => {
         );
       }
     },
+
 
     // Delete Estimation Slip by ID
     deleteEstimationSlipById: (req, res) => {
@@ -216,7 +231,7 @@ module.exports = (db) => {
 
     // Search Estimation Slips on PV
     searchEstimationSlipsOnPV: (req, res) => {
-      const { conditions } = req.body;
+      const conditions = req.body;
       let sql = `SELECT * FROM estimation_slips LEFT JOIN estimation_slip_details ON estimation_slips.id = estimation_slip_details.estimation_slip_id WHERE 1=1`;
       let params = [];
 

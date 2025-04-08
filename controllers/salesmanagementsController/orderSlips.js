@@ -37,39 +37,40 @@ module.exports = (db) => {
     // Load Order Slips
     loadOrderSlips: (req, res) => {
       const pageSize = 10;
-      const page = req.query.page;
-      const offset = page;
-      const sql =
-        page === undefined
-          ? `SELECT * FROM order_slips`
-          : `SELECT * FROM order_slips LIMIT ? OFFSET ?`;
+      const page = (req.query.page === '0' || req.query.page === "undefined") ? 1 : parseInt(req.query.page);
+      const offset = (page - 1) * pageSize;
+      const sql =`SELECT * FROM order_slips LIMIT ? OFFSET ?`;
+      const queryParams = [pageSize, offset];
 
-      if (page === undefined) {
-        db.query(sql, (err, rows) => {
-          if (err) {
-            return res.status(500).send(err.message);
-          }
-          res.json(rows);
-        });
-      } else {
-        db.query(sql, [pageSize, offset], (err, rows) => {
-          if (err) {
-            return res.status(500).send(err.message);
-          }
-          res.json(rows);
-        });
-      }
+      db.query(sql, queryParams, (err, rows) => {
+        if (err) {
+          console.error("Error loading estimation slips:", err.message);
+          return res.status(500).send("Error loading estimation slips.");
+        }
+        res.json(rows);
+      });
     },
 
     // Get Order Slip by ID
     getOrderSlipById: (req, res) => {
       const id = req.params.id;
-      const sql = `SELECT * FROM order_slips LEFT JOIN vendors v ON v.id = order_slips.vender_id WHERE order_slips.id = ?`;
+      const sql = `SELECT 
+                      order_slips.*,  -- All columns from order_slips
+                      v.code AS vendor_code  -- Vendor code with an alias
+                  FROM order_slips
+                  LEFT JOIN vendors v ON v.id = order_slips.vender_id
+                  WHERE order_slips.id = ?;
+                  `;
       db.query(sql, [id], (err, row) => {
         if (err) {
           return res.status(500).send(err.message);
         }
-        res.json(row);
+
+        // Explicitly cast 'code' field to VARCHAR
+        if (row && row.length > 0) {
+          row[0].code = String(row[0].code); // Enforce the value as a string
+        }
+        res.json(row[0]);
       });
     },
 
@@ -93,7 +94,23 @@ module.exports = (db) => {
         deposit_method,
       } = req.body;
 
+      // Format closing_date and deposit_due_date if they are numbers (representing days to add to current date)
+      const formattedClosingDate =
+        typeof closing_date === "number"
+          ? new Date(Date.now() + closing_date * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0]
+          : closing_date;
+
+      const formattedDepositDueDate =
+        typeof deposit_due_date === "number"
+          ? new Date(Date.now() + deposit_due_date * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0]
+          : deposit_due_date;
+
       if (id) {
+        console.log("this is update part")
         db.query(
           `UPDATE order_slips SET 
                   code = ?,
@@ -124,8 +141,8 @@ module.exports = (db) => {
             estimation_slip_id,
             estimation_id,
             remarks,
-            closing_date,
-            deposit_due_date,
+            formattedClosingDate,
+            formattedDepositDueDate,
             deposit_method,
             id,
           ],
@@ -157,17 +174,17 @@ module.exports = (db) => {
             estimation_slip_id,
             estimation_id,
             remarks,
-            closing_date,
-            deposit_due_date,
+            formattedClosingDate,
+            formattedDepositDueDate,
             deposit_method,
           ],
-          function (err) {
+          function (err, result) {
             if (err) {
               return res.status(500).send(err.message);
             }
             res.json({
               message: "Order slip created successfully",
-              lastID: this.lastID,
+              lastID: result.insertId,
             });
           }
         );
@@ -211,7 +228,7 @@ module.exports = (db) => {
 
     // Search Order Slips on PV
     searchOrderSlipsOnPV: (req, res) => {
-      const { conditions } = req.body;
+      const conditions = req.body;
       const id = req.params.id;
       let sql = `SELECT * FROM order_slips WHERE status='未売上'`;
       let params = [];
@@ -239,6 +256,7 @@ module.exports = (db) => {
 
       db.query(sql, params, (err, rows) => {
         if (err) {
+          console.log(err.message)
           return res.status(500).send(err.message);
         }
         res.json(rows);

@@ -29,7 +29,7 @@ module.exports = (db) => {
   // Define routes and use the controller methods
   router.post(
     "/estimationSlip/pv/search",
-    estimationSlips.searchEstimationSlips
+    estimationSlips.searchEstimationSlipsOnPV
   );
   router.post("/estimationSlip/init", estimationSlips.init);
   router.post("/estimationSlip/:id", estimationSlips.deleteEstimationSlipById);
@@ -38,10 +38,7 @@ module.exports = (db) => {
     "/estimationSlip/status",
     estimationSlips.updateEstimationSlipStatus
   );
-  router.post(
-    "/estimationSlipDetail/vender/search",
-    estimationSlipDetails.searchEstimationSlipsByEstimationSlipId
-  );
+  
   router.post("/estimationSlipDetail/init", estimationSlipDetails.init);
   router.post(
     "/estimationSlipDetail/search",
@@ -86,7 +83,7 @@ module.exports = (db) => {
   );
   router.post("/depositSlipDetail/", depositSlipDetails.saveDepositSlipDetail);
   router.post("/orderSlip/init", orderSlips.init);
-  router.post("/orderSlip/search/:id", orderSlips.searchOrderSlipsOnPV);
+  router.post("/orderSlip/search/", orderSlips.searchOrderSlipsOnPV);
   router.post("/orderSlip/:id", orderSlips.deleteOrderSlipById);
   router.post("/orderSlip", orderSlips.saveOrderSlip);
   router.put("/orderSlip/status", orderSlips.updateOrderSlipStatus);
@@ -96,10 +93,7 @@ module.exports = (db) => {
     "/orderSlipDetail/deposit/search",
     orderSlipDetails.searchOrderSlipDetails
   );
-  router.post(
-    "/orderSlipDetail/vender/search",
-    orderSlipDetails.searchOrderSlipsByOrderSlipId
-  );
+  
   router.post(
     "/orderSlipDetail/search",
     orderSlipDetails.searchOrderSlipDetails
@@ -120,40 +114,37 @@ module.exports = (db) => {
   router.post("/salesSlip/init", salesSlips.init);
   router.post("/salesSlip/:id", salesSlips.deleteSalesSlipById);
   router.post("/salesSlip/", salesSlips.saveSalesSlip);
+  
   router.post(
-    "/salesSlipDetail/vendor/search",
-    salesSlipDetails.searchSalesSlipsBySalesSlipId
-  );
-  router.post(
-    "/salesSlipDetail/monthlySales/yesterday",
+    "/salesSlipDetails/monthlySales/yesterday",
     salesSlipDetails.getMonthlySalesYesterday
   );
   router.post(
-    "/salesSlipDetail/monthlySales/tax",
+    "/salesSlipDetails/monthlySales/tax",
     salesSlipDetails.getMonthlySalesInTax
   );
   router.post(
-    "/salesSlipDetail/monthlySales",
+    "/salesSlipDetails/monthlySales",
     salesSlipDetails.getMonthlySales
   );
   router.post(
-    "/salesSlipDetail/monthly",
+    "/salesSlipDetails/monthly",
     salesSlipDetails.getMonthlySalesWithJoin
   );
-  router.post("/salesSlipDetail/init", salesSlipDetails.init);
+  router.post("/salesSlipDetails/init", salesSlipDetails.init);
   router.post(
-    "/salesSlipDetail/search",
+    "/salesSlipDetails/search",
     salesSlipDetails.searchSalesSlipDetails
   );
   router.post(
-    "/salesSlipDetail/si/:id",
+    "/salesSlipDetails/si/:id",
     salesSlipDetails.deleteSalesSlipDetailsBySlipId
   );
   router.post(
-    "/salesSlipDetail/:id",
+    "/salesSlipDetails/:id",
     salesSlipDetails.deleteSalesSlipDetailById
   );
-  router.post("/salesSlipDetail", salesSlipDetails.saveSalesSlipDetail);
+  router.post("/salesSlipDetails", salesSlipDetails.saveSalesSlipDetail);
   router.post("/invoice/init", invoices.init);
   router.post("/invoice/:id", invoices.deleteInvoiceById);
   router.post("/invoice", invoices.saveInvoice);
@@ -178,13 +169,21 @@ module.exports = (db) => {
     depositTransctions.updateDepositId
   );
 
-  router.post("/salesSlip/search", salesSlips.searchSalesSlips);
-  router.post("/salesSlip/:id", salesSlips.getSalesSlipById);
-  router.post("/salesSlip", salesSlips.loadSalesSlips);
+  router.get("/salesSlip/search", salesSlips.searchSalesSlips);
+  router.get("/salesSlip/:id", salesSlips.getSalesSlipById);
+  router.get("/salesSlip", salesSlips.loadSalesSlips);
 
-  router.get("/salesSlipDetail/:id", salesSlipDetails.getSalesSlipDetailById);
-  router.get("/salesSlipDetail/", salesSlipDetails.loadSalesSlipDetails);
+  router.get(
+    "/salesSlipDetails/vendor/search",
+    salesSlipDetails.searchSalesSlipsBySalesSlipId
+  );
+  router.get("/salesSlipDetails/:id", salesSlipDetails.getSalesSlipDetailById);
+  router.get("/salesSlipDetails/", salesSlipDetails.loadSalesSlipDetails);
 
+  router.get(
+    "/orderSlipDetail/vender/search",
+    orderSlipDetails.searchOrderSlipsByOrderSlipId
+  );
   router.get("/orderSlipDetail/:id", orderSlipDetails.getOrderSlipDetailById);
   router.get("/orderSlipDetail", orderSlipDetails.loadOrderSlipDetails);
 
@@ -197,7 +196,10 @@ module.exports = (db) => {
   router.get("/invoice/search", invoices.searchInvoices);
   router.get("/invoice/:id", invoices.getInvoiceById);
   router.get("/invoice/", invoices.loadInvoices);
-
+  router.get(
+    "/estimationSlipDetail/vender/search",
+    estimationSlipDetails.searchEstimationSlipsByEstimationSlipId
+  );
   router.get(
     "/estimationSlipDetail/:id",
     estimationSlipDetails.getEstimationSlipDetailById

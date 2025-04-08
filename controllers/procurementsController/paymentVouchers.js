@@ -32,28 +32,18 @@ module.exports = (db) => {
 
     // Load Payment Vouchers with pagination
     loadPaymentVouchers: (req, res) => {
-      const page = req.query.page;
       const pageSize = 10;
-      const offset = page;
-
-      const sql = (page = undefined
-        ? `SELECT * FROM payment_vouchers`
-        : `SELECT * FROM payment_vouchers LIMIT ? OFFSET ?`);
-      page === undefined
-        ? db.query(sql, (err, rows) => {
-            if (err) {
-              console.error("Error loading payment vouchers:", err.message);
-              return res.status(500).send("Error loading payment vouchers.");
-            }
-            res.json(rows);
-          })
-        : db.query(sql, [pageSize, offset], (err, rows) => {
-            if (err) {
-              console.error("Error loading payment vouchers:", err.message);
-              return res.status(500).send("Error loading payment vouchers.");
-            }
-            res.json(rows);
-          });
+      const page = (req.query.page === '0' || req.query.page === "undefined") ? 1 : parseInt(req.query.page);
+      const offset = (page - 1) * pageSize;
+      const sql =`SELECT * FROM payment_vouchers LIMIT ? OFFSET ?`;
+      const queryParams = [pageSize, offset];
+      db.query(sql, queryParams, (err, rows) => {
+        if (err) {
+          console.error("Error loading payment vouchers::", err.message);
+          return res.status(500).send("Error loading payment vouchers:.");
+        }
+        res.json(rows);
+      })
     },
 
     // Get Payment Voucher by ID
@@ -69,7 +59,7 @@ module.exports = (db) => {
         if (!row) {
           return res.status(404).send("Payment voucher not found.");
         }
-        res.json(row);
+        res.json(row[0]);
       });
     },
 
@@ -99,7 +89,7 @@ module.exports = (db) => {
                       contact_person = ?,
                       purchase_voucher_id = ?,
                       remarks = ?,
-                      updated = NOW()
+                      updated = CURRENT_TIMESTAMP
                     WHERE id = ?`;
 
         db.query(
@@ -127,7 +117,7 @@ module.exports = (db) => {
       } else {
         const sql = `INSERT INTO payment_vouchers 
                       (code, order_date, vender_id, vender_name, honorific, vender_contact_person, contact_person, purchase_voucher_id, remarks, created, updated) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`;
 
         db.query(
           sql,

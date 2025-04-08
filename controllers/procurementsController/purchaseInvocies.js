@@ -37,17 +37,12 @@ module.exports = (db) => {
     // Load Purchase Invoices
     loadPurchaseInvoices: (req, res) => {
       const pageSize = 10;
-      const page = req.qeury.page;
-      const offset = page;
+      const page = (req.query.page === '0' || req.query.page === "undefined") ? 1 : parseInt(req.query.page);
+      const offset = (page - 1) * pageSize;
+      const sql =`SELECT * FROM purchase_invoices LIMIT ? OFFSET ?`;
+      const queryParams = [pageSize, offset];
 
-      const sql =
-        page === undefined
-          ? `SELECT * FROM purchase_invoices`
-          : `SELECT * FROM purchase_invoices LIMIT ? OFFSET ?`;
-
-      const params = page === undefined ? [] : [pageSize, offset];
-
-      db.query(sql, params, (err, rows) => {
+      db.query(sql, queryParams, (err, rows) => {
         if (err) {
           console.error("Error loading purchase invoices:", err.message);
           return res.status(500).send("Error loading purchase invoices.");
@@ -66,7 +61,7 @@ module.exports = (db) => {
           console.error("Error retrieving purchase invoice:", err.message);
           return res.status(500).send("Error retrieving purchase invoice.");
         }
-        res.json(row);
+        res.json(row[0]);
       });
     },
 

@@ -6,7 +6,7 @@ module.exports = (db) => {
             CREATE TABLE IF NOT EXISTS payment_voucher_details (
                 id INT AUTO_INCREMENT PRIMARY KEY, -- MySQL equivalent for AUTOINCREMENT
                 payment_voucher_id INT,            -- Foreign key to payment_vouchers (if applicable)
-                payment_method INT,
+                payment_method VARCHAR(255),
                 payment_price INT,
                 fees_and_charges VARCHAR(255),
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,

@@ -83,18 +83,13 @@ module.exports = (db) => {
 
     // Load Productization Orders
     loadProductizationOrders: (req, res) => {
-      const { page } = req.query;
       const pageSize = 10;
-      const offset = page ? parseInt(page) * pageSize : 0;
+      const page = (req.query.page === '0' || req.query.page === "undefined") ? 1 : parseInt(req.query.page);
+      const offset = (page - 1) * pageSize;
+      const sql =`SELECT * FROM productization_orders LIMIT ? OFFSET ?`;
+      const queryParams = [pageSize, offset];
 
-      const sql =
-        page === undefined
-          ? `SELECT * FROM productization_orders`
-          : `SELECT * FROM productization_orders LIMIT ? OFFSET ?`;
-
-      const params = page === undefined ? [] : [pageSize, offset];
-
-      db.query(sql, params, (err, rows) => {
+      db.query(sql, queryParams, (err, rows) => {
         if (err) {
           console.error("Error loading productization orders:", err.message);
           return res.status(500).send("Error loading productization orders.");
@@ -113,7 +108,7 @@ module.exports = (db) => {
           console.error("Error fetching productization order:", err.message);
           return res.status(500).send("Error fetching productization order.");
         }
-        res.json(row);
+        res.json(row[0]);
       });
     },
 
